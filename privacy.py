@@ -1,16 +1,24 @@
 from presidio_analyzer import AnalyzerEngine
 from presidio_anonymizer import AnonymizerEngine
 from faker import Faker
+import spacy
+from presidio_analyzer.nlp_engine import SpacyNlpEngine
+from presidio_analyzer.nlp_engine import NlpEngineProvider
 
 class ReversiblePIIAnonymizer:
     def __init__(self):
-        self.analyzer = AnalyzerEngine(
-            nlp_engine_name="spacy",
-            models={"en": "en_core_web_sm"}
-        )
+        configuration = {
+            "nlp_engine_name": "spacy",
+            "models": [{"lang_code": "en", "model_name": "en_core_web_sm"}]
+        }
+        provider = NlpEngineProvider(nlp_configuration=configuration)
+        nlp_engine = provider.create_engine()
+
+        self.analyzer = AnalyzerEngine(nlp_engine=nlp_engine)
         self.anonymizer = AnonymizerEngine()
         self.faker = Faker()
         self.reverse_map = {}
+
 
     def anonymize(self, text):
         results = self.analyzer.analyze(text=text, language='en')

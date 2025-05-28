@@ -2,7 +2,7 @@ services:
   - type: web
     name: voicebot
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && bash setup.sh
     startCommand: gunicorn -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker main:app
     autodeploy: true
     envVars:

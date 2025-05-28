@@ -37,7 +37,7 @@ app = Flask(__name__)
 sock = Sock(app)
 CORS(app)
 
-PORT = int(os.environ.get("PORT", 5000))
+
 INCOMING_CALL_ROUTE = '/'
 WEBSOCKET_ROUTE = '/realtime'
 
@@ -246,6 +246,7 @@ def receive_call():
 
 
 if __name__ == "__main__":
+    PORT = int(os.environ.get("PORT", 5000))
     print(f" Flask server running on http://0.0.0.0:{PORT}")
-    print("  Start ngrok and configure your Twilio webhook manually.")
+    #print("  Start ngrok and configure your Twilio webhook manually.")
     app.run(host="0.0.0.0", port=PORT)

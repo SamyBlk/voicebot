@@ -1,0 +1,15 @@
+# .gitignore pour VoiceBot_SF
+
+# Fichiers d'environnement sensibles
+.env
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# Données générées ou temporaires
+data/QandA_preprocessed.csv
+
+# Fichiers système
+.DS_Store
+Thumbs.db

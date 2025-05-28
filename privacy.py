@@ -4,7 +4,10 @@ from faker import Faker
 
 class ReversiblePIIAnonymizer:
     def __init__(self):
-        self.analyzer = AnalyzerEngine()
+        self.analyzer = AnalyzerEngine(
+            nlp_engine_name="spacy",
+            models={"en": "en_core_web_sm"}
+        )
         self.anonymizer = AnonymizerEngine()
         self.faker = Faker()
         self.reverse_map = {}

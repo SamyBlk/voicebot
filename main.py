@@ -15,7 +15,9 @@ from deepgram import DeepgramClient, LiveTranscriptionEvents, LiveOptions
 from rag import query_rag
 import sys
 from flask_cors import CORS
-from privacy import ReversiblePIIAnonymizer
+#from privacy import ReversiblePIIAnonymizer
+from light_privacy import anonymize_text, deanonymize_text
+
 
 warnings.filterwarnings("ignore", category=ResourceWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="websockets")
@@ -84,7 +86,7 @@ class AudioTextProcessor:
 
 audio_processor = AudioTextProcessor()
 
-privacy_layer = ReversiblePIIAnonymizer()
+#privacy_layer = ReversiblePIIAnonymizer()
 
 @sock.route(WEBSOCKET_ROUTE)
 def transcription_websocket(ws):
@@ -107,7 +109,10 @@ def transcription_websocket(ws):
                     is_finals.clear()
 
                     # --- PRIVACY: Anonymize before LLM ---
-                    utterance_anon = privacy_layer.anonymize(utterance)
+                    #utterance_anon = privacy_layer.anonymize(utterance)
+                    utterance_anon = anonymize_text(utterance)
+                    print(f"[Anonymized] {utterance_anon}")
+
 
                     # Mots pour quitter
                     if any(cmd in utterance.lower() for cmd in ["exit", "quit", "goodbye", "bye"]):
@@ -152,8 +157,9 @@ def transcription_websocket(ws):
                         rag_end = time.time()
 
                     # --- PRIVACY: Deanonymize after LLM ---
-                    response = privacy_layer.deanonymize(response_anon)
-                    privacy_layer.reverse_map.clear()
+                    #response = privacy_layer.deanonymize(response_anon)
+                    response = deanonymize_text(response_anon)
+                    #privacy_layer.reverse_map.clear()
 
                     # --- TTS ---
                     tts_start = time.time()

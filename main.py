@@ -153,6 +153,7 @@ def transcription_websocket(ws):
 
                     # --- PRIVACY: Deanonymize after LLM ---
                     response = privacy_layer.deanonymize(response_anon)
+                    privacy_layer.reverse_map.clear()
 
                     # --- TTS ---
                     tts_start = time.time()

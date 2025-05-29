@@ -64,7 +64,7 @@ def initialize_rag():
         auth_credentials=Auth.api_key(weaviate_api_key),
     )
 
-    # Créer la collection "Document2" si elle n'existe pas
+    # Créer la collection "Document" si elle n'existe pas
     if "Document" not in client.collections.list_all():
         client.collections.create(
             name="Document",
@@ -106,8 +106,32 @@ def initialize_rag():
 
     return rag_chain, client
 
-# Initialisation
+# Initialisation globale
 rag_chain, weaviate_client = initialize_rag()
+
+def build_context_prompt(conversation_history):
+    """
+    Construit un prompt contextuel à partir de l'historique de la conversation.
+    """
+    history = ""
+    for turn in conversation_history[:-1]:  # on ne prend pas la dernière question
+        if turn["role"] == "user":
+            history += f"User: {turn['content']}\n"
+        elif turn["role"] == "assistant":
+            history += f"Assistant: {turn['content']}\n"
+    # Dernière question
+    last_question = conversation_history[-1]["content"]
+    return history, last_question
+
+def query_rag_with_history(conversation_history):
+    """
+    Interroge le système RAG avec l'historique de la conversation.
+    """
+    history, question = build_context_prompt(conversation_history)
+    # On ajoute l'historique dans le prompt utilisateur
+    full_input = f"{history}User: {question}"
+    answer = rag_chain.invoke({"input": full_input}, config={"callbacks": []})
+    return answer["answer"]
 
 @lru_cache(maxsize=128)
 def query_rag(question):

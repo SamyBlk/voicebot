@@ -3,7 +3,7 @@ services:
     name: voicebot
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker main:app
+    startCommand: gunicorn -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker --timeout 600 main:app
     autodeploy: true
     envVars:
       - key: OPENAI_API_KEY

@@ -16,7 +16,7 @@ from rag import query_rag
 import sys
 from flask_cors import CORS
 #from privacy import ReversiblePIIAnonymizer
-from light_privacy import anonymize_text, deanonymize_text
+#from light_privacy import anonymize_text, deanonymize_text
 
 
 warnings.filterwarnings("ignore", category=ResourceWarning)
@@ -110,8 +110,8 @@ def transcription_websocket(ws):
 
                     # --- PRIVACY: Anonymize before LLM ---
                     #utterance_anon = privacy_layer.anonymize(utterance)
-                    utterance_anon = anonymize_text(utterance)
-                    print(f"[Anonymized] {utterance_anon}")
+                    #utterance_anon = anonymize_text(utterance)
+                    #print(f"[Anonymized] {utterance_anon}")
 
 
                     # Mots pour quitter
@@ -147,18 +147,19 @@ def transcription_websocket(ws):
                     stt_end = time.time()
                     try:
                         rag_start = time.time()
-                        response_anon = query_rag(utterance_anon)
+                        response = query_rag(utterance)
+                        #response_anon = query_rag(utterance_anon)
                         #response = query_rag(utterance)
                         rag_end = time.time()
-                        print(f"[RAG] {response_anon}")
+                        print(f"[RAG] {response}")
                     except Exception as e:
-                        response_anon = "I'm sorry, I couldn't understand."
+                        response = "I'm sorry, I couldn't understand."
                         print(f"[ERROR] RAG failed: {e}")
                         rag_end = time.time()
 
                     # --- PRIVACY: Deanonymize after LLM ---
                     #response = privacy_layer.deanonymize(response_anon)
-                    response = deanonymize_text(response_anon)
+                    #response = deanonymize_text(response_anon)
                     #privacy_layer.reverse_map.clear()
 
                     # --- TTS ---

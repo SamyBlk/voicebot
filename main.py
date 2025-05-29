@@ -14,7 +14,6 @@ from flask_sock import Sock
 from pydub import AudioSegment, effects
 from dotenv import load_dotenv
 from deepgram import DeepgramClient, LiveTranscriptionEvents, LiveOptions
-#from rag import query_rag
 from rag import query_rag_with_history
 import sys
 from flask_cors import CORS
@@ -157,8 +156,6 @@ def transcription_websocket(ws):
                         response = query_rag_with_history(conversation_history)
                         # Ajoute la réponse à l'historique
                         conversation_history.append({"role": "assistant", "content": response})
-
-
                         #response = query_rag(utterance)
                         #response_anon = query_rag(utterance_anon)
                         #response = query_rag(utterance)

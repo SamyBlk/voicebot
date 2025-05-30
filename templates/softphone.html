@@ -1,55 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Voicebot CTI</title>
+  <title>Voicebot Softphone</title>
+  
 </head>
 <body>
   <h2>Voicebot connecté</h2>
+  <script src="https://curious-bear-i14l08-dev-ed.trailblaze.lightning.force.com/lightning/support/api/64.0/lightning/opencti_min.js"></script>
   <script>
-    console.log("Chargement softphone...");
-    // ⚠️ sforce.opencti n’est disponible QUE SI on est dans l’iframe Salesforce CTI
-    function tryInit() {
-      if (typeof sforce === 'undefined') {
-        console.warn("sforce non disponible (encore)");
-        setTimeout(tryInit, 1000); // Retente après 1 seconde
-        return;
-      }
-
-      console.log("✅ sforce détecté");
-      sforce.opencti.notifyInitializationComplete({
-        callback: function(result) {
-          if (result.success) {
-            console.log("CTI initialisé");
-          } else {
-            console.error("Erreur init:", result.errors);
-          }
+    sforce.opencti.notifyInitializationComplete({
+      callback: function(result) {
+        if (result.success) {
+          console.log("Softphone initialized");
+        } else {
+          console.error("Initialization error:", result.errors);
         }
-      });
+      }
+    });
 
-      window.addEventListener("message", function(event) {
-        const data = event.data;
-        if (data.type === "transcription") {
-          sforce.opencti.saveLog({
-            value: {
-              entityApiName: "Task",
-              Subject: "Voicebot Transcript",
-              Description: data.text,
-              Status: "Completed",
-              Priority: "Normal"
-            },
-            callback: function(response) {
-              if (response.success) {
-                console.log("✅ Log enregistré", response.returnValue);
-              } else {
-                console.error("❌ Échec saveLog", response.errors);
-              }
-            }
-          });
+    function logTranscriptionToSalesforce(text) {
+      sforce.opencti.saveLog({
+        value: {
+          entityApiName: "Task",
+          Subject: "Voicebot Transcript",
+          Description: text,
+          Status: "Completed",
+          Priority: "Normal"
+        },
+        callback: function(response) {
+          if (response.success) {
+            console.log(" Transcription saved:", response.returnValue);
+          } else {
+            console.error(" Failed to save log:", response.errors);
+          }
         }
       });
     }
 
-    tryInit();
+    // Attend les messages postMessage venant de Flask
+    window.addEventListener("message", function(event) {
+      if (event.origin !== "{{ origin }}") return;
+      const data = event.data;
+      if (data.type === "transcription") {
+        logTranscriptionToSalesforce(data.text);
+      }
+    });
   </script>
 </body>
 </html>

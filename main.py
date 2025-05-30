@@ -17,6 +17,7 @@ from deepgram import DeepgramClient, LiveTranscriptionEvents, LiveOptions
 from rag import query_rag
 import sys
 from flask_cors import CORS
+from flask import render_template
 #from privacy import ReversiblePIIAnonymizer
 #from light_privacy import anonymize_text, deanonymize_text
 
@@ -90,6 +91,24 @@ audio_processor = AudioTextProcessor()
 
 #privacy_layer = ReversiblePIIAnonymizer()
 
+@app.route("/softphone")
+def softphone():
+    return render_template("softphone.html", origin=f"https://{request.host}")
+
+
+def emit_transcription_to_softphone(transcript):
+    """
+    Cette fonction stocke la dernière transcription dans un fichier temporaire
+    ou dans un cache, pour qu’elle soit lue côté client via polling ou WebSocket.
+    Une alternative meilleure : socket.io ou Flask-Socket pour push direct.
+    """
+    try:
+        with open("latest_transcription.txt", "w") as f:
+            f.write(transcript)
+    except Exception as e:
+        print(f"[ERROR] Failed to store transcription: {e}")
+
+
 @sock.route(WEBSOCKET_ROUTE)
 def transcription_websocket(ws):
     dg_connection = deepgram_client.listen.websocket.v("1")
@@ -109,6 +128,7 @@ def transcription_websocket(ws):
                 if result.speech_final:
                     utterance = " ".join(is_finals)
                     print(f"\n[User] {utterance}")
+                    emit_transcription_to_softphone(utterance)
                     is_finals.clear()
 
                     # Ajoute la question à l'historique

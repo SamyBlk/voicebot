@@ -14,7 +14,7 @@ from flask_sock import Sock
 from pydub import AudioSegment, effects
 from dotenv import load_dotenv
 from deepgram import DeepgramClient, LiveTranscriptionEvents, LiveOptions
-from rag import query_rag_with_history
+from rag import query_rag
 import sys
 from flask_cors import CORS
 #from privacy import ReversiblePIIAnonymizer
@@ -95,7 +95,7 @@ def transcription_websocket(ws):
     dg_connection = deepgram_client.listen.websocket.v("1")
     stream_sid = None
     is_finals = []
-    conversation_history = []  # Historique de la conversation
+    #conversation_history = []  # Historique de la conversation
 
     def on_open(connection, event):
         print("[Deepgram] WebSocket connected")
@@ -112,7 +112,7 @@ def transcription_websocket(ws):
                     is_finals.clear()
 
                     # Ajoute la question à l'historique
-                    conversation_history.append({"role": "user", "content": utterance})
+                    #conversation_history.append({"role": "user", "content": utterance})
 
                     # --- PRIVACY: Anonymize before LLM ---
                     #utterance_anon = privacy_layer.anonymize(utterance)
@@ -153,10 +153,10 @@ def transcription_websocket(ws):
                     stt_end = time.time()
                     try:
                         rag_start = time.time()
-                        response = query_rag_with_history(conversation_history)
+                        #response = query_rag_with_history(conversation_history)
                         # Ajoute la réponse à l'historique
-                        conversation_history.append({"role": "assistant", "content": response})
-                        #response = query_rag(utterance)
+                        #conversation_history.append({"role": "assistant", "content": response})
+                        response = query_rag(utterance)
                         #response_anon = query_rag(utterance_anon)
                         #response = query_rag(utterance)
                         rag_end = time.time()

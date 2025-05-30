@@ -117,11 +117,3 @@ def query_rag(question):
     answer = rag_chain.invoke({"input": question}, config={"callbacks": []})
     return answer["answer"]
 
-def query_rag_with_history(history):
-    """
-    Interroge le modèle RAG avec l'historique de la conversation.
-    """
-    history_text = "\n".join([f"{turn['role']}: {turn['content']}" for turn in history])
-    input_text = f"Conversation history:\n{history_text}\n\nAssistant:"
-    answer = rag_chain.invoke({"input": input_text}, config={"callbacks": []})
-    return answer["answer"]
